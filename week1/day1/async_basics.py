@@ -26,7 +26,6 @@ async def async_requests():
         await asyncio.gather(*[fetch(client, i) for i in range(N)])
     end = time.time()
     print(f"Tempo ASYNC: {end - start:.2f} secondi")
-
-# ESEGUI ENTRAMBE
+   # ESEGUI ENTRAMBE
 sync_requests()
 asyncio.run(async_requests())

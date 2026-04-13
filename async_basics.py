@@ -4,7 +4,7 @@ import requests
 import httpx
 
 URL = "https://httpbin.org/delay/1"
-N = 5
+N = 10
 
 # VERSIONE SYNC
 def sync_requests():
