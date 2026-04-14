@@ -26,4 +26,6 @@ async def estrai_fattura(req: FatturaRequest):
         ]
     )
     return {"risultato": response.content[0].text}
-    
+@app.get("/saluta")
+async def saluta(nome: str):
+    return f"Ciao {nome}!"
