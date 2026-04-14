@@ -9,6 +9,8 @@ class Fattura(BaseModel):
     importo: float
     data: str
     note: Optional[str] = None
+    numero_fattura: str
+    iva: Optional[float] = 0.22
 @app.post("/estrai-fattura")
 async def crea_fattura(fattura: Fattura):
     return fattura.model_dump()
