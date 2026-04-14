@@ -29,3 +29,12 @@ async def estrai_fattura(req: FatturaRequest):
 @app.get("/saluta")
 async def saluta(nome: str):
     return f"Ciao {nome}!"
+@app.get("/raddoppia")
+async def raddoppia(numero: int):
+    return {"risultato": numero * 2}
+class MoltiplicaRequest(BaseModel):
+    numero1:int
+    numero2:int
+@app.post("/moltiplica")
+async def moltiplica(req: MoltiplicaRequest):
+    return {"risultato": req.numero1 * req.numero2}
