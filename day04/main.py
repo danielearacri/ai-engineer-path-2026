@@ -47,3 +47,6 @@ async def extract_invoice(request: ExtractRequest):
         raise HTTPException(status_code=422, detail="Claude non ha usato il tool")
 
     return InvoiceData(**tool_block.input)
+@app.get("/health")
+async def health():
+    return{"status": "ok", "model": "claude-haiku-4-5-20251001"}
