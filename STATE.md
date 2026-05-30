@@ -23,3 +23,13 @@
 ### Prossimo incremento
 - Fixare test_extract_pdf_successo: API KEY disattivata
  Incremento successivo: aggiungere validazione su invoice_date (formato ISO 8601)
+ ## 2026-05-30
+
+### Costruito oggi
+- Fix PDF_PATH con pathlib in test_extract.py: percorso assoluto indipendente da dove si lancia pytest
+- Validazione invoice_date: formato ISO 8601 con date.fromisoformat()
+- Validazione invoice_number: non vuoto con .strip()
+- Test 7/7 passati
+
+### Prossimo incremento
+- Da definire a inizio prossima sessione
