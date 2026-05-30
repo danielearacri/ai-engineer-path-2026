@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException, UploadFile, File
 from dotenv import load_dotenv
 from day04.models import InvoiceData
 from day05.pdf_extractor import extract_text_from_pdf
+from datetime import date
 
 load_dotenv()
 
@@ -72,7 +73,14 @@ async def extract_invoice_from_pdf(file: UploadFile = File(...)):
     if invoice.vat_number:
         if len(invoice.vat_number) != 11 or not invoice.vat_number.isdigit():
             raise HTTPException(status_code=422, detail="Partita IVA non valida: deve essere 11 cifre numeriche")
-
+    if invoice.invoice_date:
+        try:
+            date.fromisoformat(invoice.invoice_date)
+        except ValueError:
+            raise HTTPException(status_code=422, detail="Data fattura non valida: deve essere in formato ISO 8601")
+    
+    if not invoice.invoice_number.strip():
+        raise HTTPException(status_code=422, detail="Numero fattura non valido")
     return invoice
 
 
