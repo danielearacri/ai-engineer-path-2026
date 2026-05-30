@@ -1,5 +1,7 @@
 from fastapi.testclient import TestClient
 from day05.main import app
+from unittest.mock import patch, MagicMock
+import pytest
 
 client = TestClient(app)
 def test_extract_pdf_successo():
@@ -19,3 +21,37 @@ def test_extract_pdf_file_non_pdf():
     )
     
     assert response.status_code in [400, 422, 500]
+
+def test_total_amount_negativo():
+   
+    mock_response = MagicMock()
+    mock_response.content = [MagicMock(type="tool_use", input={
+        "invoice_number": "001",
+        "supplier_name": "Fornitore Srl",
+        "total_amount": -50.0,
+        "invoice_date": "2026-01-01",
+        "vat_number": "12345678901"
+    })]
+
+    with patch("day05.main.client.messages.create", return_value=mock_response):
+        response = client.post(
+            "/extract-pdf",
+            files={"file": ("fattura_test.pdf", open("day05/fattura_test.pdf", "rb"), "application/pdf")}
+        )
+    
+    assert response.status_code == 422
+def test_vat_number_non_valido():
+    mock_response = MagicMock()
+    mock_response.content = [MagicMock(type="tool_use", input={
+        "invoice_number": "001",
+        "supplier_name": "Fornitore Srl",
+        "total_amount": 100.0,
+        "invoice_date": "2026-01-01",
+        "vat_number": "1234567890"
+    })]
+    with patch("day05.main.client.messages.create", return_value=mock_response):
+        response = client.post(
+            "/extract-pdf",
+            files={"file": ("fattura_test.pdf", open("day05/fattura_test.pdf", "rb"), "application/pdf")}
+        )
+    assert response.status_code == 422
