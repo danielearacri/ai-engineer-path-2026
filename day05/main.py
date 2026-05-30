@@ -65,7 +65,16 @@ async def extract_invoice_from_pdf(file: UploadFile = File(...)):
     if tool_block is None:
         raise HTTPException(status_code=422, detail="Claude non ha usato il tool")
 
-    return InvoiceData(**tool_block.input)
+    invoice = InvoiceData(**tool_block.input)
+    if invoice.total_amount <= 0:
+        raise HTTPException(status_code=422, detail="Importo totale non valido")
+    
+    if invoice.vat_number:
+        if len(invoice.vat_number) != 11 or not invoice.vat_number.isdigit():
+            raise HTTPException(status_code=422, detail="Partita IVA non valida: deve essere 11 cifre numeriche")
+
+    return invoice
+
 
 @app.get("/health")
 async def health():
