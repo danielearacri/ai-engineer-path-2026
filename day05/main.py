@@ -50,6 +50,7 @@ async def extract_invoice_from_pdf(file: UploadFile = File(...)):
     try:
         raw_text = extract_text_from_pdf(pdf_bytes)
     except ValueError as e:
+        logger.error(f"Errore estrazione testo da {file.filename}: {str(e)}")
         raise HTTPException(status_code=422, detail=str(e))
 
     # 4. Passa il testo a Claude (stessa logica di day04)
