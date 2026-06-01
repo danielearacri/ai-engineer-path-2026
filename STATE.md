@@ -33,3 +33,34 @@
 
 ### Prossimo incremento
 - Da definire a inizio prossima sessione
+## 2026-05-30
+
+### Costruito oggi
+- Aggiunto logging strutturato in day05/main.py
+- logger.info per richiesta in entrata e output Claude
+- logger.error per tutti i casi di validazione fallita
+- 7/7 test passati
+
+### Prossimo incremento
+- Da definire a inizio prossima sessione
+- logger.error aggiunto nel blocco except ValueError di pdfplumber (esercizio autonomo)
+## 2026-05-31
+
+### Costruito oggi
+- Error handling strutturato sulla chiamata Claude API: AuthenticationError (500), RateLimitError (429), APIError (502)
+- Try/except su InvoiceData parsing per Pydantic ValidationError (422)
+- Import aggiunto: from pydantic import ValidationError
+- 7/7 test passati
+
+### Prossimo incremento
+- Scrivere test pytest per i nuovi error handler (API errors + ValidationError)
+## 2026-05-31
+
+### Costruito oggi
+- Test pytest per error handler API: AuthenticationError (500), RateLimitError (429), APIError (502)
+- Test pytest per ValidationError Pydantic (422)
+- Concetto appreso: side_effect vs return_value nel mock, costruttori diversi per eccezioni SDK Anthropic
+- 11/11 test passati
+
+### Prossimo incremento
+- Da definire a inizio prossima sessione

@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from day05.main import app
 from unittest.mock import patch, MagicMock
 import pytest
+import anthropic
 PDF_PATH = Path(__file__).parent.parent / "day05" / "fattura_test.pdf"
 
 client = TestClient(app)
@@ -87,4 +88,67 @@ def test_invoice_number_non_valido():
             "/extract-pdf",
             files={"file": ("fattura_test.pdf", open(PDF_PATH, "rb"), "application/pdf")}
         )
+    
     assert response.status_code == 422
+def test_authentication_error():
+    mock_response = MagicMock()
+    mock_response.status_code = 401
+
+    with patch("day05.main.client.messages.create",
+               side_effect=anthropic.AuthenticationError(
+                   message="Invalid API key",
+                   response=mock_response,
+                   body={"error": {"message": "Invalid API key"}}
+               )):
+        response = client.post(
+            "/extract-pdf",
+            files={"file": ("fattura_test.pdf", open(PDF_PATH, "rb"), "application/pdf")}
+        )
+
+    assert response.status_code == 500
+    assert "autenticazione" in response.json()["detail"].lower()
+def test_rate_limit_error():
+    mock_response = MagicMock()
+    mock_response.status_code = 429
+    with patch("day05.main.client.messages.create",
+               side_effect=anthropic.RateLimitError(
+                   message="Rate Limit Exceeded",
+                   response=mock_response,
+                   body={"error": {"message": "Rate Limit Exceeded"}}
+               )):
+        response = client.post(
+            "/extract-pdf",
+            files={"file": ("fattura_test.pdf", open(PDF_PATH, "rb"), "application/pdf")}
+        )
+    assert response.status_code == 429
+    assert "troppo" in response.json()["detail"].lower()
+def test_api_error():
+    mock_response = MagicMock()
+    mock_response.status_code = 502
+    with patch("day05.main.client.messages.create",
+               side_effect=anthropic.APIError(message="Api Error" , request=MagicMock(), body=None)):
+        response = client.post(
+            "/extract-pdf",
+            files={"file": ("fattura_test.pdf", open(PDF_PATH, "rb"), "application/pdf")}
+        )
+    assert response.status_code == 502
+    assert "comunicazione" in response.json()["detail"].lower()
+def test_validation_error_pydantic():
+   
+    mock_response = MagicMock()
+    mock_response.content = [MagicMock(type="tool_use", input={
+        "invoice_number": "001",
+        "supplier_name": "Fornitore Srl",
+        "total_amount": "non_numero",
+        "invoice_date": "2026-01-01",
+        "vat_number": "12345678901"
+    })]
+
+    with patch("day05.main.client.messages.create", return_value=mock_response):
+        response = client.post(
+            "/extract-pdf",
+            files={"file": ("fattura_test.pdf", open(PDF_PATH, "rb"), "application/pdf")}
+        )
+    
+    assert response.status_code == 422
+    assert "validation" in response.json()["detail"].lower()
