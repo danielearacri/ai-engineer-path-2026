@@ -1,7 +1,7 @@
 from pathlib import Path
 from fastapi.testclient import TestClient
 from day05.main import app
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 import pytest
 import anthropic
 PDF_PATH = Path(__file__).parent.parent / "day05" / "fattura_test.pdf"
@@ -36,7 +36,7 @@ def test_total_amount_negativo():
         "vat_number": "12345678901"
     })]
 
-    with patch("day05.main.client.messages.create", return_value=mock_response):
+    with patch("day05.main.client.messages.create", new_callable=AsyncMock, return_value=mock_response):
         response = client.post(
             "/extract-pdf",
             files={"file": ("fattura_test.pdf", open(PDF_PATH, "rb"), "application/pdf")}
@@ -52,7 +52,7 @@ def test_vat_number_non_valido():
         "invoice_date": "2026-01-01",
         "vat_number": "1234567890"
     })]
-    with patch("day05.main.client.messages.create", return_value=mock_response):
+    with patch("day05.main.client.messages.create", new_callable=AsyncMock, return_value=mock_response):
         response = client.post(
             "/extract-pdf",
             files={"file": ("fattura_test.pdf", open(PDF_PATH, "rb"), "application/pdf")}
@@ -68,7 +68,7 @@ def test_invoice_date_non_valida():
         "invoice_date": "01/01/2026",
         "vat_number": "12345678901"
     })]
-    with patch("day05.main.client.messages.create", return_value=mock_response):
+    with patch("day05.main.client.messages.create", new_callable=AsyncMock, return_value=mock_response):
         response = client.post(
             "/extract-pdf",
             files={"file": ("fattura_test.pdf", open(PDF_PATH, "rb"), "application/pdf")}
@@ -83,7 +83,7 @@ def test_invoice_number_non_valido():
         "invoice_date": "2026-01-01",
         "vat_number": "12345678901"
     })]
-    with patch("day05.main.client.messages.create", return_value=mock_response):
+    with patch("day05.main.client.messages.create", new_callable=AsyncMock, return_value=mock_response):
         response = client.post(
             "/extract-pdf",
             files={"file": ("fattura_test.pdf", open(PDF_PATH, "rb"), "application/pdf")}
@@ -144,7 +144,7 @@ def test_validation_error_pydantic():
         "vat_number": "12345678901"
     })]
 
-    with patch("day05.main.client.messages.create", return_value=mock_response):
+    with patch("day05.main.client.messages.create", new_callable=AsyncMock, return_value=mock_response):
         response = client.post(
             "/extract-pdf",
             files={"file": ("fattura_test.pdf", open(PDF_PATH, "rb"), "application/pdf")}

@@ -64,3 +64,16 @@
 
 ### Prossimo incremento
 - Da definire a inizio prossima sessione
+## 2026-05-31
+
+### Costruito oggi
+- Refactoring client Anthropic da sincrono a asincrono: Anthropic → AsyncAnthropic
+- Aggiunto await su client.messages.create() per liberare l'event loop
+- Fix test: MagicMock → AsyncMock (new_callable) per i 5 test con return_value
+- 11/11 test passati
+
+### Concetti appresi
+- Thread: singola sequenza di esecuzione; async event loop = un thread furbo che cede il controllo con await
+- Problema sync inside async: chiamata sincrona blocca l'event loop, server non serve altre richieste
+- MagicMock non ha __await__, AsyncMock sì: unica differenza tecnica
+- side_effect lancia l'eccezi

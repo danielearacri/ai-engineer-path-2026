@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 app = FastAPI()
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+client = anthropic.AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 tool_estrai_fattura = {
     "name": "estrai_dati_fattura",
@@ -56,7 +56,7 @@ async def extract_invoice_from_pdf(file: UploadFile = File(...)):
 
     # 4. Passa il testo a Claude (stessa logica di day04)
     try:
-        response = client.messages.create(
+        response = await client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=1024,
             tools=[tool_estrai_fattura],
