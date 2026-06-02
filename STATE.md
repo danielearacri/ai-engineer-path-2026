@@ -76,4 +76,45 @@
 - Thread: singola sequenza di esecuzione; async event loop = un thread furbo che cede il controllo con await
 - Problema sync inside async: chiamata sincrona blocca l'event loop, server non serve altre richieste
 - MagicMock non ha __await__, AsyncMock sì: unica differenza tecnica
-- side_effect lancia l'eccezi
+- side_effect lancia l'eccezione
+
+
+## 2026-06-01
+
+### Costruito oggi
+
+- Decisione: Prossimo incremento= eval, piu lungo ma piu utile
+- Buildato la cartella day07\evals con tutte le sottocartelle che ci serviranno (golden_set/real and synthetic, README.md, results)
+-README golden_set scritto: razionale vs reale, tre ruoli (claude, reportlab, me), piano sub
+
+### Concetti appresi
+
+- req.txt: pip freeze scrive il file, pip install -r lo legge
+- Markdown base- spazio dopo # e righe vuote tra le sezioni
+
+### Prossimo incremento
+
+-implementa generate_synthetic.py: generare prima fattura PDF sintetica ita
+## 2026-06-01 (sessione 2)
+
+### Costruito oggi
+- Implementato day07/evals/generate_synthetic.py
+- Schema tool use INVOICE_TOOL con 6 campi: invoice_number, invoice_date, vat_number, customer_name, line_items (array di oggetti annidati), total_amount
+- Funzione generate_invoice_data(): chiamata Claude con tool_choice forzato, ritorna dict
+- Funzione render_pdf(): SimpleDocTemplate A4 con margini 2cm, Paragraph per intestazione e dati, Table con TableStyle (header grigio, importi allineati a destra)
+- Generato fattura_001.pdf nella cartella golden_set/synthetic
+- Scritta golden_set/synthetic/fattura_001.json a mano leggendo dal PDF (NON copiata dall'output di Claude)
+- JSON validato con json.load(): OK
+
+### Concetti appresi
+- Pattern reportlab platypus: crei oggetti (Paragraph, Spacer, Table), li aggiungi a una lista story, alla fine doc.build(story) scrive il file
+- Sistema di coordinate Table: (colonna, riga), -1 = ultimo; rettangolo definito da due coordinate estremi inclusi
+- Tag inline reportlab (<b>, <i>) interpretati da Paragraph, NON HTML vero
+- F-string con formattatore: f"{numero:.2f}" forza due decimali fissi
+- Differenza inline vs variabile intermedia: usi variabile solo quando devi configurare l'oggetto post-creazione (es. Table.setStyle)
+- Indipendenza della golden label: se la prendessi dall'output di Claude, valuterei Claude contro sé stesso, eval inutili. La verità deve venire da fonte esterna al sistema valutato
+- JSON strict: niente trailing comma, niente unità (€) dentro numeri, stringhe con doppi apici
+
+### Prossimo incremento
+- Implementare scorer.py: confronta output pipeline day05 vs golden label, ritorna metriche (campo-per-campo match, accuracy totale)
+- Prima incremento più piccolo: scrivere run_evals.py che carica il PDF sintetico, lo passa a pipeline day05, restituisce il dict estratto

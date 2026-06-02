@@ -1,0 +1,12 @@
+{
+    "invoice_number": "2024/0087",
+    "invoice_date": "2024-03-15",
+    "vat_number": "12345678901",
+    "customer_name": "Rossi Tech S.r.l.",
+    "line_items": [
+        {"description": "Consulenza sviluppo software - 40 ore", "amount": 3200.00},
+        {"description": "Analisi architettura sistema - 16 ore", "amount": 1440.00},
+        {"description": "Supporto tecnico e manutenzione mensile", "amount": 850.00}
+    ],
+    "total_amount": 5490.00
+}
