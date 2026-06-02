@@ -23,3 +23,5 @@ Tre ruoli separati:
 - Target a 3 mesi: 70% del golden set è composto da fatture reali
 
 L'obiettivo è non costruire un sistema che funziona solo su fatture giocattolo.
+## Limiti noti
+- fattura_001.pdf contiene solo il nome del cliente, mancante il fornitore. Le prossime fatture sintetiche devono avere entrambi.

@@ -114,7 +114,25 @@
 - Differenza inline vs variabile intermedia: usi variabile solo quando devi configurare l'oggetto post-creazione (es. Table.setStyle)
 - Indipendenza della golden label: se la prendessi dall'output di Claude, valuterei Claude contro sé stesso, eval inutili. La verità deve venire da fonte esterna al sistema valutato
 - JSON strict: niente trailing comma, niente unità (€) dentro numeri, stringhe con doppi apici
+## 2026-06-02
 
+### Costruito oggi
+- Refactoring day05/main.py: estratta extract_invoice_from_bytes (bytes → InvoiceData) separata dall'endpoint FastAPI
+- Implementato day07/evals/run_evals.py: importa funzione cuoco, legge PDF da disco, stampa output come dict
+- Primo run end-to-end riuscito: pipeline estrae correttamente da fattura_001.pdf
+- Trovato problema eval: fattura_001.pdf manca del fornitore, supplier_name non valutabile
+- Aggiornati golden label (rimosso supplier_name) e README (limiti noti)
+- 11/11 test passati dopo refactoring
+
+### Concetti appresi
+- bytes: sequenza grezza di numeri che compone un file su disco, si legge con open(path, "rb").read()
+- Refactoring cuoco/cameriere: separare logica core (bytes) dall'interfaccia (UploadFile) per riusabilità
+- sys.path.insert: aggiunge cartelle dove Python cerca i moduli (necessario per script standalone, non per pytest)
+- asyncio.run(): accende l'event loop per eseguire funzioni async da script
+- Golden label onesta: se il PDF non ha il dato, il campo non va nella golden label
+
+### Prossimo incremento
+- Implementare scorer.py: confronta output pipeline vs golden label campo per campo
 ### Prossimo incremento
 - Implementare scorer.py: confronta output pipeline day05 vs golden label, ritorna metriche (campo-per-campo match, accuracy totale)
 - Prima incremento più piccolo: scrivere run_evals.py che carica il PDF sintetico, lo passa a pipeline day05, restituisce il dict estratto

@@ -7,9 +7,9 @@ from day04.models import InvoiceData
 from day05.pdf_extractor import extract_text_from_pdf
 from datetime import date
 from pydantic import ValidationError
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 logger = logging.getLogger(__name__)
-
 
 load_dotenv()
 
@@ -32,29 +32,14 @@ tool_estrai_fattura = {
     }
 }
 
-@app.post("/extract-pdf", response_model=InvoiceData)
-async def extract_invoice_from_pdf(file: UploadFile = File(...)):
-    logger.info(f"File {file.filename} - {file.content_type}")
-    # 1. Valida che sia un PDF
-    if file.content_type != "application/pdf":
-        logger.error(f"Formato non supportato: {file.content_type}. Richiesto: application/pdf")
-        raise HTTPException(
-            status_code=422,
-            detail=f"Formato non supportato: {file.content_type}. Richiesto: application/pdf"
-        )
-    
-    # 2. Leggi i bytes del file
-    pdf_bytes = await file.read()
-    
 
-    # 3. Estrai testo con pdfplumber
+async def extract_invoice_from_bytes(pdf_bytes: bytes) -> InvoiceData:
     try:
         raw_text = extract_text_from_pdf(pdf_bytes)
     except ValueError as e:
-        logger.error(f"Errore estrazione testo da {file.filename}: {str(e)}")
+        logger.error(f"Errore estrazione testo: {str(e)}")
         raise HTTPException(status_code=422, detail=str(e))
 
-    # 4. Passa il testo a Claude (stessa logica di day04)
     try:
         response = await client.messages.create(
             model="claude-haiku-4-5-20251001",
@@ -82,7 +67,7 @@ async def extract_invoice_from_pdf(file: UploadFile = File(...)):
     )
 
     if tool_block is None:
-        logger.error(f"Claude non ha usato il tool {file.filename}")
+        logger.error("Claude non ha usato il tool")
         raise HTTPException(status_code=422, detail="Claude non ha usato il tool")
     logger.info(f"Claude ha usato il tool: {tool_block.input}")
 
@@ -91,6 +76,7 @@ async def extract_invoice_from_pdf(file: UploadFile = File(...)):
     except ValidationError as e:
         logger.error(f"Formato dati non valido: {str(e)}")
         raise HTTPException(status_code=422, detail=str(e))
+
     if invoice.total_amount <= 0:
         logger.error(f"Importo totale non valido: {invoice.total_amount}")
         raise HTTPException(status_code=422, detail="Importo totale non valido")
@@ -107,7 +93,18 @@ async def extract_invoice_from_pdf(file: UploadFile = File(...)):
     if not invoice.invoice_number.strip():
         logger.error(f"Numero fattura non valido: {invoice.invoice_number}")
         raise HTTPException(status_code=422, detail="Numero fattura non valido")
+
     return invoice
+
+
+@app.post("/extract-pdf", response_model=InvoiceData)
+async def extract_invoice_from_pdf(file: UploadFile = File(...)):
+    logger.info(f"File {file.filename} - {file.content_type}")
+    if file.content_type != "application/pdf":
+        logger.error(f"Formato non supportato: {file.content_type}")
+        raise HTTPException(status_code=422, detail="Formato non supportato")
+    pdf_bytes = await file.read()
+    return await extract_invoice_from_bytes(pdf_bytes)
 
 
 @app.get("/health")
