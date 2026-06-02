@@ -136,3 +136,36 @@
 ### Prossimo incremento
 - Implementare scorer.py: confronta output pipeline day05 vs golden label, ritorna metriche (campo-per-campo match, accuracy totale)
 - Prima incremento più piccolo: scrivere run_evals.py che carica il PDF sintetico, lo passa a pipeline day05, restituisce il dict estratto
+## 2026-06-02 (sessione 2)
+
+### Costruito oggi
+- Implementato day07/evals/scorer.py: funzione score_invoice(expected, actual) -> dict
+- Confronto campo per campo: float per total_amount, str per gli altri
+- Output: details (expected, actual, match per campo) + accuracy (0.0-1.0)
+- Read-and-defend superato: .get() per campi mancanti, ZeroDivisionError edge case, float vs str su importi
+
+### Concetti appresi
+- Type hint di ritorno (-> dict): documentazione, non enforcement
+- .values() restituisce solo i valori perdendo le chiavi, il dict intero le conserva
+- sum() su booleani: True=1, False=0
+- Variabile temporanea nel generatore (d in details.values()) vive solo dentro quell'espressione
+
+### Prossimo incremento
+- Modificare run_evals.py: caricare golden label JSON, convertire output pipeline con .model_dump(), passare a score_invoice(), stampare report
+
+## 2026-06-02 (sessione 3)
+
+### Costruito oggi
+- Modificato day07/evals/run_evals.py: carica golden label con json.load(), converte output pipeline con .model_dump(), passa a score_invoice()
+- Primo eval end-to-end funzionante: accuracy 66.7% (4/6 campi corretti)
+- 2 campi mancanti (customer_name, line_items): non sono errori pipeline, InvoiceData non li ha ancora
+
+### Concetti appresi
+- json.load(f): legge da file aperto, restituisce dict. json.loads(s): legge da stringa in memoria
+- .model_dump(): converte oggetto Pydantic in dict Python semplice
+- Import moduli: si usa il nome senza .py (from scorer import, non from scorer.py import)
+- Apertura file: "rb" per binari (PDF), "r" con encoding="utf-8" per testo (JSON)
+- Ordine import: librerie standard, poi sys.path.insert, poi moduli propri
+
+### Prossimo incremento
+- Esercizio: funzione print_report() per output leggibile (OK/FAIL per campo, accuracy in percentuale)
